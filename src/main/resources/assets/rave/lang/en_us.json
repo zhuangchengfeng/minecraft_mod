@@ -1,0 +1,13 @@
+{
+  "itemGroup.rave": "Example Mod Tab",
+  "block.rave.example_block": "Example Block",
+  "item.rave.example_item": "Example Item",
+
+  "rave.configuration.title": "RAVE Configs",
+  "rave.configuration.section.rave.common.toml": "RAVE Configs",
+  "rave.configuration.section.rave.common.toml.title": "RAVE Configs",
+  "rave.configuration.items": "Item List",
+  "rave.configuration.logDirtBlock": "Log Dirt Block",
+  "rave.configuration.magicNumberIntroduction": "Magic Number Text",
+  "rave.configuration.magicNumber": "Magic Number"
+}
