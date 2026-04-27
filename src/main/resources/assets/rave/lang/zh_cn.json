@@ -2,5 +2,9 @@
   "enchantment.rave.tap_dance": "踢踏舞",
   "effect.rave.tap_dance_effect": "踢踏舞效果",
   "item.rave.bitcoin": "比特币",
-  "item.rave.ruby": "卢比"
+  "item.rave.ruby": "卢比",
+  "tapdance.layer": "踢踏舞: %d",
+  "rave.configuration.located": "属性信息坐标"
+
+
 }

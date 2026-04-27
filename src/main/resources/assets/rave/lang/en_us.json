@@ -13,5 +13,8 @@
   "item.rave.bitcoin": "Bitcoin",
   "item.rave.ruby": "Ruby",
   "enchantment.rave.tap_dance": "tap dance",
-  "effect.rave.tap_dance_effect": "tap dance e"
+  "effect.rave.tap_dance_effect": "tap dance e",
+  "container.fast_furnace": "Fast Furnace",
+  "tapdance.layer": "Tap Dance: %d",
+  "rave.configuration.located": 'info located'
 }
