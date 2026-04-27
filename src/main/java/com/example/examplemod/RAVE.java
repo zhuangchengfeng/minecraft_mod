@@ -1,117 +1,83 @@
 package com.example.examplemod;
 
-import org.slf4j.Logger;
-
+import com.example.examplemod.init.ModRegistry;
 import com.mojang.logging.LogUtils;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.api.distmarker.Dist;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.slf4j.Logger;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
+import java.util.UUID;
+
 @Mod(RAVE.MODID)
 public class RAVE {
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "rave";
-    // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    // Create a Deferred Register to hold Blocks which will all be registered under the "rave" namespace
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
-    // Create a Deferred Register to hold Items which will all be registered under the "rave" namespace
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
-    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "rave" namespace
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-
-    // Creates a new Block with the id "rave:example_block", combining the namespace and path
-    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
-    // Creates a new BlockItem with the id "rave:example_block", combining the namespace and path
-    public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
-
-    // Creates a new food item with the id "rave:example_id", nutrition 1 and saturation 2
-    public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", p -> p.food(new FoodProperties.Builder()
-            .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
-
-    // Creates a creative tab with the id "rave:example_tab" for the example item, that is placed after the combat tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.rave")) //The language key for the title of your CreativeModeTab
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
-            }).build());
-
-    // The constructor for the mod class is the first code that is run when your mod is loaded.
-    // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
-    public RAVE(IEventBus modEventBus, ModContainer modContainer) {
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
-
-        // Register the Deferred Register to the mod event bus so blocks get registered
-        BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so items get registered
-        ITEMS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
-        CREATIVE_MODE_TABS.register(modEventBus);
-
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (RAVE) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
+    public RAVE(IEventBus modEventBus) {
+        ModRegistry.ENCHANTMENTS.register(modEventBus);
+        ModRegistry.EFFECTS.register(modEventBus);
         NeoForge.EVENT_BUS.register(this);
-
-        // Register the item to a creative tab
-        modEventBus.addListener(this::addCreative);
-
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-    private void commonSetup(FMLCommonSetupEvent event) {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-
-        if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
-            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-        }
-
-        LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
-
-        Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
-    }
-
-    // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(EXAMPLE_BLOCK_ITEM);
-        }
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
+    private static final Identifier TAP_DANCE_MODIFIER_ID = Identifier.fromNamespaceAndPath("rave", "tap_dance_modifier");
+    private static final Identifier SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath("rave", "tap_dance_speed");
+    private static final Identifier ATTACK_SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath("rave", "tap_dance_attack"); // 攻速可选
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+    public void onLivingDamage(LivingDamageEvent.Pre event) {
+        if (!(event.getSource().getEntity() instanceof Player player)) return;
+        ItemStack weapon = player.getMainHandItem();
+        int enchantLevel = weapon.getEnchantmentLevel(ModRegistry.TAP_DANCE);
+        if (enchantLevel <= 0) return;
+
+        MobEffectInstance current = player.getEffect(ModRegistry.TAP_DANCE_EFFECT);
+        int newAmplifier = (current == null ? 0 : current.getAmplifier() + 1);
+        // 不再限制最大层数，实现无限叠加
+        player.addEffect(new MobEffectInstance(ModRegistry.TAP_DANCE_EFFECT, 100, newAmplifier));
+    }
+
+    @SubscribeEvent
+    public void onPlayerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide()) return;
+
+        MobEffectInstance effect = player.getEffect(ModRegistry.TAP_DANCE_EFFECT);
+        AttributeInstance movementSpeedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
+        if (movementSpeedAttr == null || attackSpeedAttr == null) return;
+
+        // 先移除旧修饰符（移速和攻速）
+        movementSpeedAttr.removeModifier(SPEED_MODIFIER_ID);
+        attackSpeedAttr.removeModifier(ATTACK_SPEED_MODIFIER_ID);
+
+        if (effect != null) {
+            int amplifier = effect.getAmplifier();
+            ItemStack weapon = player.getMainHandItem();
+            int enchantLevel = weapon.getEnchantmentLevel(ModRegistry.TAP_DANCE);
+            if (enchantLevel > 0) {
+                // 计算移速加成：每层基础增量X * 附魔等级，总增量 = (amplifier+1) * (0.02 * enchantLevel)
+                double baseIncrement = 0.002 * enchantLevel;
+                double speedBoost = (amplifier + 1) * baseIncrement;
+                // 添加移速修饰符
+                movementSpeedAttr.addTransientModifier(new AttributeModifier(SPEED_MODIFIER_ID, speedBoost, AttributeModifier.Operation.ADD_VALUE));
+
+                // 获取当前移速（已包含刚添加的修饰符）
+                double currentMovementSpeed = player.getAttributeValue(Attributes.MOVEMENT_SPEED);
+                // 攻速加成 = 当前移速 * 0.3
+                double attackBoost = currentMovementSpeed * 0.3;
+                // 添加攻速修饰符
+                attackSpeedAttr.addTransientModifier(new AttributeModifier(ATTACK_SPEED_MODIFIER_ID, attackBoost, AttributeModifier.Operation.ADD_VALUE));
+            }
+        }
     }
 }

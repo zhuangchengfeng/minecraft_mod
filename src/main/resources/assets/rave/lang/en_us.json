@@ -1,5 +1,5 @@
 {
-  "itemGroup.rave": "Example Mod Tab",
+  "itemGroup.rave": "rave_tab",
   "block.rave.example_block": "Example Block",
   "item.rave.example_item": "Example Item",
 
@@ -9,5 +9,9 @@
   "rave.configuration.items": "Item List",
   "rave.configuration.logDirtBlock": "Log Dirt Block",
   "rave.configuration.magicNumberIntroduction": "Magic Number Text",
-  "rave.configuration.magicNumber": "Magic Number"
+  "rave.configuration.magicNumber": "Magic Number",
+  "item.rave.bitcoin": "Bitcoin",
+  "item.rave.ruby": "Ruby",
+  "enchantment.rave.tap_dance": "tap dance",
+  "effect.rave.tap_dance_effect": "tap dance e"
 }

@@ -1,4 +1,5 @@
 package com.example.examplemod;
+import com.example.examplemod.RAVE;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
