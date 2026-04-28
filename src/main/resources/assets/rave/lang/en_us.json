@@ -16,5 +16,6 @@
   "effect.rave.tap_dance_effect": "tap dance e",
   "container.fast_furnace": "Fast Furnace",
   "tapdance.layer": "Tap Dance: %d",
-  "rave.configuration.located": 'info located'
+  "rave.configuration.located": "info located"
+
 }

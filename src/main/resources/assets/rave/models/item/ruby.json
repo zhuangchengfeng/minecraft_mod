@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "rave:item/bitcoin"
+    "layer0": "rave:item/ruby"
   }
 }

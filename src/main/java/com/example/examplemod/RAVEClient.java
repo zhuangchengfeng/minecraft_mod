@@ -1,11 +1,13 @@
 package com.example.examplemod;
 import com.example.examplemod.RAVE;
-
-import net.minecraft.client.Minecraft;
+import com.example.examplemod.client.renderer.ItemReplicatorRenderer;
+import com.example.examplemod.init.ModBlockEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.minecraft.client.Minecraft;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -29,4 +31,11 @@ public class RAVEClient {
         RAVE.LOGGER.info("HELLO FROM CLIENT SETUP");
         RAVE.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
+
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntities.ITEM_REPLICATOR.get(),
+                ItemReplicatorRenderer::new);
+    }
+
 }
